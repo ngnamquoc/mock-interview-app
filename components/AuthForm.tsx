@@ -5,10 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
+import FormField from "./FormField";
 
 const authFormSchema = (type: FormType) => {
   return z.object({
@@ -32,6 +32,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      if (type === "sign-up") {
+        console.log("sign up", values);
+      } else {
+        console.log("sign in", values);
+      }
     } catch (error) {
       console.log(error);
       toast.error(`There was an error: ${error}`);
@@ -52,9 +57,23 @@ const AuthForm = ({ type }: { type: FormType }) => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full space-y-6 mt-4 form"
         >
-          {!isSignIn && <p>Name</p>}
-          <p>Email</p>
-          <p>Password</p>
+          {!isSignIn && (
+            <FormField control={form.control} name="name" label="Name" placeholder="Your Username"/>
+          )}
+          <FormField
+            control={form.control}
+            name="email"
+            label="Email"
+            type="email"
+            placeholder="Your email address"
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            label="Password"
+            type="password"
+            placeholder="Your password"
+          />
 
           <Button className="btn" type="submit">
             {!isSignIn ? "Create an Account" : "Sign In"}
