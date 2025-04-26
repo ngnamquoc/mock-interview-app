@@ -111,3 +111,25 @@ export async function isAuthenticated() {
   const user = await getCurrentSigninUser();
   return !!user;
 }
+
+export async function getInterviewsByUserId(
+  userId: string
+): Promise<Interview[] | null> {
+
+  console.log(userId);
+  
+  
+  // fetch from db 
+  const interviews = await db
+    .collection("interviews")
+    .where("userId", "==", userId)
+    .orderBy("date", "desc")
+    .get();
+    
+
+    return interviews.docs.map((doc)=>({
+      id:doc.id,
+      ...doc.data()
+
+    })) as Interview[]
+}
