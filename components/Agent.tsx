@@ -1,4 +1,5 @@
 "use client";
+import { interviewer } from "@/constants";
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
 import Image from "next/image";
@@ -15,10 +16,13 @@ interface SavedMessage {
   role: "user" | "system" | "assistant";
   content: string;
 }
-const Agent = ({ userName, userId, type }: AgentProps) => {
-  // console.log("username is:");
-
-  // console.log(userName);
+const Agent = ({
+  userName,
+  userId,
+  type,
+  interviewId,
+  questions,
+}: AgentProps) => {
 
   const router = useRouter();
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -56,20 +60,71 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
     };
   }, []);
 
+  const handleGenerateFeedback = async (messages: SavedMessage[]) => {
+    console.log("generating feedback");
+
+    const { success, id } = {
+      success: true,
+      id: "feedback id",
+    };
+    if (success && id) {
+      router.push(`/interview/${id}/feedback`);
+    } else {
+      console.log("failed to generating feedback");
+      router.push("/");
+    }
+  };
+
   useEffect(() => {
-    // direct user back to homepage when finishing the call
-    if (callStatus === "FINISHED") router.push("/");
+    console.log("useEffect triggered");
+    
+    // check if this is the new call or finished
+    if (callStatus === CallStatus.FINISHED) {
+      if (type === "generate") {
+        router.push("/");
+      } else {
+        handleGenerateFeedback(messages);
+      }
+    }
   }, [messages, callStatus, type, userId, router]);
 
   const handleCall = async () => {
+    console.log("handle call");
+    
     setCallStatus(CallStatus.CONNECTING);
 
-    await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-      variableValues: {
-        username: userName,
-        userid: userId,
-      },
-    });
+    if (type === "generate") {
+      console.log("case type is generate");
+
+      await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
+        variableValues: {
+          username: userName,
+          userid: userId,
+        },
+      });
+    } else {
+      console.log("case type is interview");
+      
+      let formattedQuestions = "";
+      if (questions) {
+        formattedQuestions = questions
+          .map((question) => `-${question}`)
+          .join("\n");
+      }
+      console.log(formattedQuestions);
+
+      try{
+        await vapi.start(interviewer,{variableValues:{
+          questions:formattedQuestions
+        }})
+
+      }catch(e){
+        console.log(e);
+        
+      }
+      
+  
+    }
   };
   const handleDisconnect = async () => {
     setCallStatus(CallStatus.FINISHED);

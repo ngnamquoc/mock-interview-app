@@ -1,11 +1,12 @@
 import InterviewCard from "@/components/InterviewCard";
 import { Button } from "@/components/ui/button";
-import { dummyInterviews } from "@/constants";
+import { getCurrentSigninUser } from "@/lib/actions/auth.actions";
+
 import {
-  getCurrentSigninUser,
   getInterviewsByUserId,
   getLatestInterviews,
-} from "@/lib/actions/auth.actions";
+} from "@/lib/actions/general.actions";
+
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -20,9 +21,8 @@ const page = async () => {
     getLatestInterviews({ userId: user?.id! }),
   ]);
 
-
   const hasPreviousInterview = interviews && interviews.length > 0;
-  const hasCommunityInterview=latestInterviews && latestInterviews.length>0
+  const hasCommunityInterview = latestInterviews && latestInterviews.length > 0;
 
   return (
     <>
@@ -64,12 +64,13 @@ const page = async () => {
       <section className="flex flex-col mt-8 gap-6">
         <h2>Take an interview</h2>
         <div className="interviews-section">
-          {hasCommunityInterview?(
-            latestInterviews.map((interview)=>(
-            <InterviewCard key={interview.id} {...interview}/>
+          {hasCommunityInterview ? (
+            latestInterviews.map((interview) => (
+              <InterviewCard key={interview.id} {...interview} />
             ))
-          ):(<p>Not available</p>)}
-     
+          ) : (
+            <p>Not available</p>
+          )}
         </div>
       </section>
     </>
