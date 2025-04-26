@@ -133,3 +133,26 @@ export async function getInterviewsByUserId(
 
     })) as Interview[]
 }
+
+export async function getLatestInterviews(
+  params: GetLatestInterviewsParams
+): Promise<Interview[] | null> {
+
+  const {userId,limit=20}=params
+  
+  
+  // fetch from db 
+  const interviews = await db
+    .collection("interviews")
+    .where("userId", "!=", userId)
+    .where("finalized","==","true")
+    .orderBy("date", "desc").limit(limit)
+    .get();
+    
+
+    return interviews.docs.map((doc)=>({
+      id:doc.id,
+      ...doc.data()
+
+    })) as Interview[]
+}

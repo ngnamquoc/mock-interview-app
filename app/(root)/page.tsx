@@ -4,6 +4,7 @@ import { dummyInterviews } from "@/constants";
 import {
   getCurrentSigninUser,
   getInterviewsByUserId,
+  getLatestInterviews,
 } from "@/lib/actions/auth.actions";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,13 +13,16 @@ import React from "react";
 const page = async () => {
   // get current user and fetch associating interviews
   const user = await getCurrentSigninUser();
-  console.log(user?.id);
 
-  const interviews = user?.id ? await getInterviewsByUserId(user.id) : null;
+  // parallel fetching from db for optimization
+  const [interviews, latestInterviews] = await Promise.all([
+    getInterviewsByUserId(user?.id!),
+    getLatestInterviews({ userId: user?.id! }),
+  ]);
 
-  console.log(interviews);
 
   const hasPreviousInterview = interviews && interviews.length > 0;
+  const hasCommunityInterview=latestInterviews && latestInterviews.length>0
 
   return (
     <>
@@ -60,9 +64,12 @@ const page = async () => {
       <section className="flex flex-col mt-8 gap-6">
         <h2>Take an interview</h2>
         <div className="interviews-section">
-          {dummyInterviews.map((interview) => (
-            <InterviewCard key={interview.id} {...interview} />
-          ))}{" "}
+          {hasCommunityInterview?(
+            latestInterviews.map((interview)=>(
+            <InterviewCard key={interview.id} {...interview}/>
+            ))
+          ):(<p>Not available</p>)}
+     
         </div>
       </section>
     </>
