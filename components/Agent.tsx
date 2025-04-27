@@ -60,41 +60,53 @@ const Agent = ({
     };
   }, []);
 
-  const handleGenerateFeedback = async (messages: SavedMessage[]) => {
-    console.log("generating feedback");
-
-    const { success, id } = {
-      success: true,
-      id: "feedback id",
-    };
-    if (success && id) {
-      router.push(`/interview/${id}/feedback`);
-    } else {
-      console.log("failed to generating feedback");
-      router.push("/");
-    }
-  };
+ 
 
   useEffect(() => {
-    console.log("useEffect triggered");
-    
-    // check if this is the new call or finished
-    if (callStatus === CallStatus.FINISHED) {
-      if (type === "generate") {
-        router.push("/");
+    console.log("useEffect with dependencies triggered");
+
+    const handleGenerateFeedback = async (messages: SavedMessage[]) => {
+      // console.log("generating feedback");
+  
+      const { success, id } = {
+        success: true,
+        id: "feedback-id",
+      };
+      if (success && id) {
+        router.push(`/interview/${interviewId}/feedback`);
       } else {
+        // console.log("failed to generating feedback");
+        router.push("/");
+      }
+    };
+
+    // console.log('initial call status',callStatus);
+    
+    
+    if (callStatus === CallStatus.FINISHED) {
+      // case end of generating new interview process
+      if (type === "generate") {
+        // console.log("case generating new interview");
+        
+        router.push("/");
+        // case taking an interview from previous initialized interview
+      } else {
+        // console.log("case taking interview");
+
         handleGenerateFeedback(messages);
       }
     }
-  }, [messages, callStatus, type, userId, router]);
+  }, [messages, callStatus, type, userId]);
 
   const handleCall = async () => {
-    console.log("handle call");
+    // console.log("handle call function");
     
     setCallStatus(CallStatus.CONNECTING);
+    // console.log('current call status',callStatus);
+    
 
     if (type === "generate") {
-      console.log("case type is generate");
+      // console.log("case type is generate");
 
       await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
         variableValues: {
@@ -103,7 +115,7 @@ const Agent = ({
         },
       });
     } else {
-      console.log("case type is interview");
+      // console.log("case type is interview");
       
       let formattedQuestions = "";
       if (questions) {
@@ -111,7 +123,7 @@ const Agent = ({
           .map((question) => `-${question}`)
           .join("\n");
       }
-      console.log(formattedQuestions);
+      // console.log(formattedQuestions);
 
       try{
         await vapi.start(interviewer,{variableValues:{
@@ -192,7 +204,7 @@ const Agent = ({
                 callStatus !== "CONNECTING" && "hidden"
               )}
             />
-            <span>{isCallStatusInactiveOrFinished ? "Call" : "..."}</span>
+            <span>{isCallStatusInactiveOrFinished ? type==="interview"?"Start Interview":"Initialize Interview" : "..."}</span>
           </button>
         ) : (
           <button className="btn-disconnect" onClick={handleDisconnect}>
