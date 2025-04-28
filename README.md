@@ -29,6 +29,32 @@ MockInterview is an innovative platform designed to help candidates prepare for 
 
 ---
 
+## How to Use the App
+
+Follow these steps to make the most out of the MockInterview platform:
+
+1. **Register an Account**:
+   - Sign up using your email and password on the Sign-Up page.
+
+2. **Get Started**:
+   - After logging in, click the "Get Started" button on the dashboard.
+
+3. **Initialize an Interview**:
+   - Click the "Initialize Interview" button to set up a new interview session.
+   - You will be directed back to the main dashboard after the interview session is initialized.
+
+4. **Start the Mock Interview**:
+   - Under the "Your Interviews" section, click on the interview card that was just generated.
+   - Click the "Start" button to begin the mock interview session.
+
+5. **End the Call and View Feedback**:
+   - After completing the interview, click the "End" button to finish the session.
+   - The feedback will be displayed immediately after the call ends, providing insights into your performance.
+
+Enjoy preparing for your job interviews with AI-driven assistance!
+
+---
+
 ## Quick Start
 
 Follow these steps to set up the project locally on your machine.
@@ -116,3 +142,4 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 ## 📄 License
 
 This project is licensed under the MIT License.
+
