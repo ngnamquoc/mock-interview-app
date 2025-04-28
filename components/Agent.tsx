@@ -5,6 +5,7 @@ import { vapi } from "@/lib/vapi.sdk";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -60,25 +61,41 @@ const Agent = ({
     };
   }, []);
 
+  const handleGenerateFeedback = async (messages: SavedMessage[]) => {
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          interviewId: interviewId!,
+          userId: userId!,
+          transcript: messages,
+        }),
+      });
+  
+      const { success, feedbackId } = await response.json();
+  
+      if (success && feedbackId) {
+        toast.success("Feedback generated successfully!");
+        router.push(`/interview/${interviewId}/feedback`);
+      } else {
+        toast.error("Failed to generate feedback.");
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Failed to generate feedback:", error);
+      toast.error("An error occurred while generating feedback.");
+      router.push("/");
+    }
+  };
  
 
   useEffect(() => {
     console.log("useEffect with dependencies triggered");
 
-    const handleGenerateFeedback = async (messages: SavedMessage[]) => {
-      // console.log("generating feedback");
-  
-      const { success, id } = {
-        success: true,
-        id: "feedback-id",
-      };
-      if (success && id) {
-        router.push(`/interview/${interviewId}/feedback`);
-      } else {
-        // console.log("failed to generating feedback");
-        router.push("/");
-      }
-    };
+    
 
     // console.log('initial call status',callStatus);
     
@@ -132,6 +149,7 @@ const Agent = ({
 
       }catch(e){
         console.log(e);
+        toast.error("Failed to start the interview.");
         
       }
       
